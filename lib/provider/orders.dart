@@ -23,10 +23,24 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
+  String? _token;
+  String? _userId;
+
+  set setToken(String? token) {
+    _token = token;
+  }
+
+  set setUserId(String? userId) {
+    _userId = userId;
+  }
+
+  get orderEmpty {
+    return [];
+  }
+
   Future<void> fetchAndSetOrder() async {
-    var url = Uri.https(
-        'hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
-        '/orders.json');
+    var url = Uri.parse(
+        'https://hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app/orders/$_userId.json?auth=$_token');
 
     final res = await http.get(url);
 
@@ -60,9 +74,8 @@ class Orders with ChangeNotifier {
 
   Future<void> addOrders(List<CartItem> cartProducts, double total) async {
     final timeStamp = DateTime.now();
-    var url = Uri.https(
-        'hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
-        '/orders.json');
+    var url = Uri.parse(
+        'https://hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app/orders/$_userId.json?auth=$_token');
 
     var res = await http.post(
       url,

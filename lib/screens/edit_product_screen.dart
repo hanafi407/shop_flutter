@@ -27,7 +27,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   var _isInit = true;
   var _isLoading = false;
   var _editedProduct = Product(
-    id: '',
+    productId: '',
     title: '',
     price: 0,
     description: '',
@@ -91,9 +91,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
       _isLoading = true;
     });
 
-    if (_editedProduct.id!.isNotEmpty) {
+    if (_editedProduct.productId!.isNotEmpty) {
       await Provider.of<Products>(context, listen: false)
-          .updateProduct(_editedProduct.id!, _editedProduct);
+          .updateProduct(_editedProduct.productId!, _editedProduct);
 
       Navigator.of(context).pop();
     } else {
@@ -134,7 +134,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('build ulang');
+    print('build ulang edit_product_screen.dart');
     return Scaffold(
       appBar: AppBar(
         title: Text('User Product'),
@@ -173,7 +173,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             .requestFocus(_pricesFocusNode),
                         onSaved: (value) {
                           _editedProduct = Product(
-                              id: _editedProduct.id,
+                              productId: _editedProduct.productId,
                               title: value as String, //masukan nilai disini
                               description: _editedProduct.description,
                               price: _editedProduct.price,
@@ -207,7 +207,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         },
                         onSaved: (value) {
                           _editedProduct = Product(
-                              id: _editedProduct.id,
+                              productId: _editedProduct.productId,
                               title: _editedProduct.title,
                               description: _editedProduct.description,
                               price: double.parse(value!),
@@ -234,7 +234,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         focusNode: _descriptionFocusNode,
                         onSaved: (value) {
                           _editedProduct = Product(
-                              id: _editedProduct.id,
+                              productId: _editedProduct.productId,
                               title: _editedProduct.title,
                               description: value as String,
                               price: _editedProduct.price,
@@ -294,7 +294,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                               onFieldSubmitted: (_) => setState(() {}),
                               onSaved: (value) {
                                 _editedProduct = Product(
-                                    id: _editedProduct.id,
+                                    productId: _editedProduct.productId,
                                     title: _editedProduct.title,
                                     description: _editedProduct.description,
                                     price: _editedProduct.price,

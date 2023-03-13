@@ -14,7 +14,13 @@ class CartItem {
 }
 
 class Cart with ChangeNotifier {
+  
+
   Map<String, CartItem> _items = {};
+
+  set setItems(Map<String, CartItem> items) {
+    _items = items;
+  }
 
   Map<String, CartItem> get item {
     return {..._items};

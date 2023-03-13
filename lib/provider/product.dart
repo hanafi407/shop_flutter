@@ -4,7 +4,7 @@ import 'dart:convert';
 import '../models/http_exception.dart';
 
 class Product with ChangeNotifier {
-  final String? id;
+  final String? productId;
   final String? title;
   final String? description;
   final double? price;
@@ -12,7 +12,7 @@ class Product with ChangeNotifier {
   bool? isFavorite;
 
   Product({
-    required this.id,
+    required this.productId,
     required this.title,
     required this.description,
     required this.price,
@@ -25,18 +25,17 @@ class Product with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> togleFavoriteStatus() async {
+  Future<void> togleFavoriteStatus(String? token, String? userId) async {
     final oldStatus = isFavorite;
     isFavorite = !isFavorite!;
     notifyListeners();
-    final url = Uri.https(
-        'hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
-        '/products/$id');
+    final url = Uri.parse(
+        'https://hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app/userFavorites/$userId/$productId.json?auth=$token');
     try {
-      var res = await http.patch(
+      var res = await http.put(
         url,
         body: json.encode(
-          {'isFavorite': isFavorite},
+          isFavorite,
         ),
       );
       if (res.statusCode >= 400) {

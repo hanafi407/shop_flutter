@@ -14,6 +14,7 @@ enum FilterOption {
 }
 
 class ProductOverviewScreen extends StatefulWidget {
+  static const routeName = '/product';
   @override
   State<ProductOverviewScreen> createState() => _ProductOverviewScreenState();
 }
@@ -21,6 +22,22 @@ class ProductOverviewScreen extends StatefulWidget {
 class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
   bool _showOnlyFavorite = false;
   bool _isLoading = false;
+
+  void _showDialog(String message) {
+    showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+              title: Text('There is error!'),
+              content: Text(message),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                    },
+                    child: Text('Okay'))
+              ],
+            ));
+  }
 
   @override
   void initState() {
@@ -33,13 +50,15 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
       setState(() {
         _isLoading = false;
       });
+    }).catchError((error) {
+      print('OverViewScreen $error');
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    print('build ulang');
+    print('build ulang product_overview_screen.dart');
     final productContainer = Provider.of<Products>(context, listen: false);
     return Scaffold(
       appBar: AppBar(

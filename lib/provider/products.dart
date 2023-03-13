@@ -41,7 +41,24 @@ class Products with ChangeNotifier {
   //         'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
   //   )
 
+  String? _token;
+  // Products(this.token);
+
+  set setToken(String? token) {
+    _token = token;
+  }
+
+  String? _userId;
+
+  set setUserId(String? userId) {
+    _userId = userId;
+  }
+
   var _showFavoriteOnly = false;
+
+  List<Products> get itemsEmpty {
+    return [];
+  }
 
   List<Product> get items {
     if (_showFavoriteOnly) {
@@ -55,13 +72,15 @@ class Products with ChangeNotifier {
   }
 
   Product findById(String id) {
-    return _items!.firstWhere((item) => item.id == id);
+    return _items!.firstWhere((item) => item.productId == id);
   }
 
-  Future<void> fetchAndSetProducts() async {
-    var url = Uri.https(
-        'hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
-        '/products.json');
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    String filterString =
+        filterByUser ? 'orderBy="creatorId"&equalTo="$_userId"' : '';
+
+    var url = Uri.parse(
+        'https://hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app/products.json?auth=$_token&$filterString');
 
     try {
       final response = await http.get(url);
@@ -70,46 +89,55 @@ class Products with ChangeNotifier {
       if (extractedData == null) {
         return;
       }
-      
+
+      url = Uri.parse(
+          'https://hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app/userFavorites/$_userId.json?auth=$_token');
+
+      final resIsFavorite = await http.get(url);
+      final favoriteData = json.decode(resIsFavorite.body);
+
       final List<Product> loadedProduct = [];
       extractedData.forEach((prodId, prodData) {
-        loadedProduct.add(Product(
-            id: prodId,
-            title: prodData['title'],
-            description: prodData['description'],
-            price: prodData['price'],
-            imageUrl: prodData['imageUrl'],
-            isFavorite: prodData['isFavorite']));
+        loadedProduct.add(
+          Product(
+              productId: prodId,
+              title: prodData['title'],
+              description: prodData['description'],
+              price: prodData['price'],
+              imageUrl: prodData['imageUrl'],
+              isFavorite:
+                  favoriteData == null ? false : favoriteData[prodId] ?? false),
+        );
       });
 
       _items = loadedProduct;
-      print('fetch');
+      print('Producs.fetchAndSetProducts()');
       notifyListeners();
     } catch (error) {
-      rethrow;
+      print('products $error');
+      throw (error);
     }
   }
 
   Future<void> addProduct(Product product) async {
-    var url = Uri.https(
-        'hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
-        '/products.json');
+    var url = Uri.parse(
+        'https://hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app/products.json?auth=$_token');
     try {
       final res = await http.post(
         url,
         body: json.encode({
+          'creatorId': _userId,
           'title': product.title,
           'price': product.price,
           'description': product.description,
           'imageUrl': product.imageUrl,
-          'isFavorite': product.isFavorite,
         }),
       );
 
       print(json.decode(res.body));
 
       final newProduct = Product(
-        id: json.decode(res.body)['name'],
+        productId: json.decode(res.body)['name'],
         title: product.title,
         description: product.description,
         price: product.price,
@@ -126,11 +154,10 @@ class Products with ChangeNotifier {
   }
 
   Future<void> updateProduct(String id, Product newProduct) async {
-    final prodIndex = _items!.indexWhere((prod) => prod.id == id);
+    final prodIndex = _items!.indexWhere((prod) => prod.productId == id);
     if (prodIndex >= 0) {
-      final url = Uri.https(
-          'hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
-          '/products/$id.json');
+      final url = Uri.parse(
+          'https://hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app/products/$id.json?auth=$_token');
       await http.patch(url,
           body: json.encode({
             'title': newProduct.title,
@@ -146,11 +173,10 @@ class Products with ChangeNotifier {
   }
 
   Future<void> deleteProduct(String id) async {
-    final url = Uri.https(
-        'hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app',
-        '/products/$id');
+    final url = Uri.parse(
+        'https://hanafi-flutter-default-rtdb.asia-southeast1.firebasedatabase.app/products/$id.json?auth=$_token');
     final existingProductIndex =
-        _items!.indexWhere((element) => element.id == id);
+        _items!.indexWhere((element) => element.productId == id);
     var existingProduct = _items?[existingProductIndex];
     _items!.removeAt(existingProductIndex);
     notifyListeners();
