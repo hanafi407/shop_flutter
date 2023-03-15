@@ -12,6 +12,7 @@ import './screens/edit_product_screen.dart';
 import './screens/auth_screen.dart';
 import './provider/auth.dart';
 import './screens/splash_screen.dart';
+import './helpers/custom_routes.dart';
 
 void main() {
   runApp(const MyApp());
@@ -56,13 +57,16 @@ class MyApp extends StatelessWidget {
           builder: (ctx, auth, _) => MaterialApp(
             title: 'Flutter Demo',
             theme: ThemeData(
-              fontFamily: 'Lato',
-              primaryColor: Colors.purple,
-              accentColor: Colors.deepOrange,
-
-              // colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.purple)
-              //     .copyWith(secondary: Colors.deepOrange)
-            ),
+                fontFamily: 'Lato',
+                primaryColor: Colors.purple,
+                accentColor: Colors.deepOrange,
+                pageTransitionsTheme: PageTransitionsTheme(builders: {
+                  TargetPlatform.android: CustomPageTransitionBuilder(),
+                  TargetPlatform.iOS: CustomPageTransitionBuilder(),
+                })
+                // colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.purple)
+                //     .copyWith(secondary: Colors.deepOrange)
+                ),
             routes: {
               ProductOverviewScreen.routeName: (context) =>
                   ProductOverviewScreen(),
